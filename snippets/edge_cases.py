@@ -1,15 +1,15 @@
 # E01 — Wrong decorators
-class A:
+class DecorParent:
     def __init__(self): ...
-class B(A):
+class DecorChild(DecorParent):
     @staticmethod
     def __init__():
         ...
 
 # E02 — super in try/except (already present)
-class A2:
+class TryParent:
     def __init__(self): ...
-class B2(A2):
+class TryChild(TryParent):
     def __init__(self):
         try:
             super().__init__()
@@ -17,9 +17,9 @@ class B2(A2):
             pass
 
 # E03 — Metaclass/__new__ magic
-class A3:
+class NewParent:
     def __new__(cls):
         return super().__new__(cls)
-class B3(A3):
+class NewChild(NewParent):
     def __init__(self):
         ...

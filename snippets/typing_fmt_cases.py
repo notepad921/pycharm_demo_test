@@ -1,15 +1,15 @@
 # T01 — Docstring first
-class A:
+class PathParent:
     def __init__(self, path: str): ...
-class B(A):
+class PathChild(PathParent):
     def __init__(self, path: str):
         """Loads things."""
         ...
 
 # T02 — Long signature, wrapping
-class A2:
+class LongSigParent:
     def __init__(self, very_long_argument_name: str, *, flag: bool = False): ...
-class B2(A2):
+class LongSigChild(LongSigParent):
     def __init__(
         self,
         very_long_argument_name: str,
@@ -19,8 +19,8 @@ class B2(A2):
         ...
 
 # T03 — Mutable default
-class A3:
+class ItemsParent:
     def __init__(self, items=None): ...
-class B3(A3):
+class ItemsChild(ItemsParent):
     def __init__(self, items=None):
         ...

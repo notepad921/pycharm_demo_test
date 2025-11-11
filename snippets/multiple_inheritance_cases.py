@@ -1,32 +1,32 @@
 # M01 — Diamond, cooperative
-class A:
+class DiamondTopParent:
     def __init__(self, x): ...
-class M:
-    def __init__(self, *a, **k):
-        super().__init__(*a, **k)
-class B(A, M):
+class DiamondMixinCooperative:
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+class DiamondChild(DiamondTopParent, DiamondMixinCooperative):
     def __init__(self, x):
         ...
 
 # M02 — Mixin without __init__
-class M2: 
+class MixinNoInit:
     pass
-class A2:
+class MixBaseWithInit:
     def __init__(self, x): ...
-class B2(M2, A2):
+class MixChild(MixinNoInit, MixBaseWithInit):
     def __init__(self, x):
         ...
 
 # M03 — Base without __init__
-class A3: 
+class EmptyBaseNoInit:
     pass
-class B3(A3):
+class ChildOverEmptyBase(EmptyBaseNoInit):
     def __init__(self):
         ...
 
 # M04 — Explicit parent call already present
-class A4:
+class ExplicitBase:
     def __init__(self, x): ...
-class B4(A4):
+class ExplicitChild(ExplicitBase):
     def __init__(self, x):
-        A4.__init__(self, x)
+        ExplicitBase.__init__(self, x)

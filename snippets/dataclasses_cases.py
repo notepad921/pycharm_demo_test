@@ -1,19 +1,18 @@
-# D01 — Parent is @dataclass
 from dataclasses import dataclass
 
-
+# D01 — Parent is @dataclass
 @dataclass
-class A:
+class DataParent:
     id: int
     name: str = "n"
 
-class B(A):
+class DataChildExplicitInit(DataParent):
     def __init__(self, id: int, name: str = "n"):
         ...
 
 # D02 — Child is @dataclass, no explicit __init__
-class A2:
+class RegularParentWithInit:
     def __init__(self, x): ...
 @dataclass
-class B2(A2):
+class DataChildAutoInit(RegularParentWithInit):
     x: int

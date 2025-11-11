@@ -1,59 +1,58 @@
-
 # B01 — Single inheritance, no args
-class A:
+class ParentNoArgs:
     def __init__(self):
         pass
-class B(A):
+class ChildNoArgs(ParentNoArgs):
     def __init__(self):
         pass
 
 # B02 — Positional + default
-class A2:
+class ParentPosDefault:
     def __init__(self, x, y=10): ...
-class B2(A2):
+class ChildPosDefault(ParentPosDefault):
     def __init__(self, x, y=20):
         self.y = y
 
 # B03 — Keyword-only
-class A3:
+class ParentKwOnly:
     def __init__(self, *, limit: int): ...
-class B3(A3):
+class ChildKwOnly(ParentKwOnly):
     def __init__(self, *, limit: int):
         """Doc."""
         self.limit = limit
 
 # B04 — Positional-only (PEP 570)
-class A4:
+class ParentPosOnly:
     def __init__(self, x, /, y): ...
-class B4(A4):
+class ChildPosOnly(ParentPosOnly):
     def __init__(self, x, /, y):
         ...
 
 # B05 — Varargs passthrough
-class A5:
+class ParentVarargs:
     def __init__(self, *args, **kwargs): ...
-class B5(A5):
+class ChildVarargs(ParentVarargs):
     def __init__(self, a, *args, **kwargs):
         ...
 
 # B06 — Different names
-class A6:
+class ParentDifferentNames:
     def __init__(self, user_id, active=True): ...
-class B6(A6):
-    def __init__(self, uid, *, active=True, **kw):
+class ChildDifferentNames(ParentDifferentNames):
+    def __init__(self, uid, *, active=True, **remaining_kwargs):
         ...
 
 # B07 — Built-in parent
-class A7(list):
+class ParentBuiltinList(list):
     def __init__(self, iterable=()):
         super().__init__(iterable)
-class B7(A7):
+class ChildBuiltinList(ParentBuiltinList):
     def __init__(self, iterable=()):
         ...
 
 # B08 — Exception subclass
-class A8(Exception):
+class ParentException(Exception):
     def __init__(self, msg: str): ...
-class B8(A8):
+class ChildException(ParentException):
     def __init__(self, msg: str):
         ...
