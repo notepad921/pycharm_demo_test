@@ -1,5 +1,5 @@
 """
-Read-only safety check.
+Read-only check.
 
 Windows:
     attrib +R snippets\\readonly_case.py
@@ -10,11 +10,17 @@ POSIX:
     chmod u+w snippets/readonly_case.py
 """
 
+# -----------------------------
+# R01 — Quick-fix availability in read-only files
+# -----------------------------
+
+
 class ROParent:
     def __init__(self, token="x"):
         self.token = token
 
 class ROChild(ROParent):
-    """Expected: IDE  doesn't raise an inspection, and does not offer the quick-fix in RO mode"""
+    """Expected: The inspection works, but the IDE explicitly shows that the quick-fix cannot be applied
+     because of RO. R01."""
     def __init__(self, token="x"):
         ...

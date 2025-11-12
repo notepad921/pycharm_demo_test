@@ -1,3 +1,7 @@
+"""
+Performance scenario for the quick-fix.
+# P01 — 1k parent/child pairs mixed with diamonds to check batch fixes.
+"""
 
 class Parent1:
     """Trivial init; sets a readiness flag."""

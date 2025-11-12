@@ -8,15 +8,36 @@ intentionally missing super().__init__ in the child to trigger the inspection.
 # B01 — Single inheritance, no args
 # -----------------------------
 class ParentNoArgs:
-    """Parent defines a parameterless __init__(). Used by B01."""
+    """Parent defines a parameterless __init__() that prepares state. Used by B01."""
+
     def __init__(self):
         pass
+        self.ready = True
 
 
 class ChildNoArgs(ParentNoArgs):
-    """Child lacks super().__init__(). B01 expects insertion of super().__init__()."""
+    """Child lacks super().__init__(); quick-fix must insert it before touching parent state."""
+
     def __init__(self):
         pass
+        self.is_ready = self.ready  # Quick-fix should insert super().__init__() before this line.
+
+
+# -----------------------------
+# B01a — Early parent dependency
+# -----------------------------
+class ParentRequiresSetup:
+    """Parent initializes state that children may access immediately. B01a."""
+
+    def __init__(self):
+        self.ready = True
+
+
+class ChildEarlyDependency(ParentRequiresSetup):
+    """Child touches parent-provided state; super() must precede that access."""
+
+    def __init__(self):
+        self.is_ready = self.ready  # Quick-fix should insert super().__init__() before this line.
 
 
 # -----------------------------
