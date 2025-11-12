@@ -22,20 +22,21 @@ Non-Bundled Plugins:
 
 - Python: 3.13.x  
 - Scope: We test this *feature pair* (inspection + quick-fix).
-- Out of scope → global inspection settings, profiles, automation, deep performance testing, localization testing.
+- Out of scope → global inspection settings, profiles, automation, deep performance testing, localization, usability testing.
 
-**Status legend:** PASS / FAIL
+**Status legend:** PASS / ❌ FAIL
 
-For **FAIL** I include a block with unexpected code after applying this quick-fix.
+For **❌ FAIL** I include a block with unexpected code after applying this quick-fix.
 
 ---
 
 ## B01 — Single inheritance, no args
-**Snippet:** `snippets/basic_cases.py` (B01)  
+**Snippet:** `snippets/basic_cases.py` (B01, B01a)  
 **Steps:** Place caret on `ChildNoArgs.__init__` → Alt+Enter → *Add superclass call*.  
 **Expected result:** Child inserts `super().__init__()`; formatting intact; earlier code is not allowed to rely on parent state before the call.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -43,8 +44,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B02 — Positional + default
 **Snippet:** `snippets/basic_cases.py` (B02)  
 **Expected result:** Insert `super().__init__(x, y)` before `self.y = y`; formatting unchanged.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -52,8 +54,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B03 — Keyword-only
 **Snippet:** `snippets/basic_cases.py` (B03)  
 **Expected result:** Insert `super().__init__(limit=limit)` after the docstring; the docstring remains the first statement.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -61,8 +64,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B04 — Positional-only (PEP 570)
 **Snippet:** `snippets/basic_cases.py` (B04)  
 **Expected result:** Pass `x` positionally and not by name; insert `super().__init__(x, y)`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -70,44 +74,41 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B05 — Varargs passthrough
 **Snippet:** `snippets/basic_cases.py` (B05)  
 **Expected result:** Forward only the variable arguments to the parent using `super().__init__(*args, **kwargs)` and do not pass the child-only parameter.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
 
 ## B06 — Param names differ
 **Snippet:** `snippets/basic_cases.py` (B06)  
-**Expected result:** Match parameters strictly by name (e.g., `active`) and forward the remainder via `**remaining_kwargs`; do not infer name mappings.  
-**Actual:**  
-**Status:**  
+**Expected result:** “Match identical names and pass them by keyword. Do not forward **remaining_kwargs because the parent does not accept it. Do not guess uid → user_id.”
 
-```incorrect code after applying
+**Actual:**  exactly as expected
+
+**Status:**  PASS
+
+```  incorrect code after applying  
 ```
 
 ## B07 — Built-in parent (list)
 **Snippet:** `snippets/basic_cases.py` (B07)  
 **Expected result:** Insert `super().__init__(iterable)` and preserve layout despite a C-implemented base.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
 
-## B08 — Exception subclass
+
+## B08 — Parent uses __slots__
 **Snippet:** `snippets/basic_cases.py` (B08)  
-**Expected result:** Insert `super().__init__(msg)` so the exception message is propagated; no formatting regressions.  
-**Actual:**  
-**Status:**  
-
-```incorrect code after applying
-```
-
-## B09 — Parent uses __slots__
-**Snippet:** `snippets/basic_cases.py` (B09)  
 **Expected result:** Insert a parent call (e.g., `super().__init__(token=token)`) so that slot-backed attributes are initialized; formatting remains intact.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -115,8 +116,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B10 — Built-in parent (dict)
 **Snippet:** `snippets/basic_cases.py` (B10)  
 **Expected result:** Insert `super().__init__(initial)` and keep indentation and spacing unchanged.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -133,8 +135,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B12 — Parent accepts **kwargs only
 **Snippet:** `snippets/basic_cases.py` (B12)  
 **Expected result:** Forward the remaining named arguments via `super().__init__(**rest)` and keep child-only parameters local.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -142,46 +145,67 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## B13 — Mixed positional-only + keyword-only
 **Snippet:** `snippets/basic_cases.py` (B13)  
 **Expected result:** Preserve argument kinds by passing positional-only arguments positionally and keyword-only by name, e.g., `super().__init__(x, y, flag=flag)`.  
-**Actual:**  
-**Status:**  
 
-```incorrect code after applying
+**Actual:**  super().__init__(x, y, flag=flag) is ok, but extra "/" was added to child args (it's another quick-fix, not our target, just light the problem)
+
+**Status:** PASS, but another quick-fix ❌ FAIL, just FYI
+
+```    
+def __init__(self, x, /, y, /, *, flag=False): <---- extra "/" was added here, syntax error!
+    super().__init__(x, y, flag=flag)
+    ...
 ```
 
 ## B14 — Abstract Base Class (ABC)
 **Snippet:** `snippets/basic_cases.py` (B14)  
 **Expected result:** Insert `super().__init__(name)`; abstractness does not change call requirements.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
 
 ## B15 — Standard library class — threading.Thread
 **Snippet:** `snippets/basic_cases.py` (B15)  
-**Expected result:** Build a keyworded call reflecting provided arguments, e.g., `super().__init__(group=group, target=target, name=name)`; preserve formatting.  
-**Actual:**  
-**Status:**  
+**Expected result:** Build a keyworded call reflecting provided arguments, e.g., `super().__init__(group, target, name, daemon=daemon)`; preserve formatting.  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
 
-## B16 — Standard library class — logging.Logger
-**Snippet:** `snippets/basic_cases.py` (B16)  
-**Expected result:** Insert `super().__init__(name, level)` (or a keyworded variant) without altering layout.  
-**Actual:**  
-**Status:**  
+
+## B16 — Single inheritance, by mouse click
+**Snippet:** `snippets/basic_cases.py` (B01)  
+**Steps:** Place a mouse on `ChildNoArgs.__init__` → left click → *Add superclass call*.  
+**Expected result:** Child inserts `super().__init__()`; formatting intact;
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
 
+## B17 — Single inheritance, quick-fix, than UNDO and REDO
+**Snippet:** `snippets/basic_cases.py` (B01)  
+**Steps:** Place caret on `ChildNoArgs.__init__` → Alt+Enter → *Add superclass call* → ctrl-Z → ctrl-shift-Z.  
+**Expected result:** Child inserts `super().__init__()`; formatting intact; applying of the fix is first canceled, then returned.
+**Actual:**  exactly as expected
+
+**Status:**  PASS
+
+```incorrect code after applying
+```
 ---
 
 ## M01 — Diamond, cooperative
 **Snippet:** `snippets/multiple_inheritance_cases.py` (M01)  
 **Expected result:** Prefer a cooperative `super().__init__(x)` call rather than addressing a specific base directly.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -189,8 +213,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## M02 — Mixin without __init__
 **Snippet:** `snippets/multiple_inheritance_cases.py` (M02)  
 **Expected result:** Offer the quick-fix and insert `super().__init__(x)` according to MRO even if one of the bases has no `__init__`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -198,8 +223,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## M03 — Base without __init__
 **Snippet:** `snippets/multiple_inheritance_cases.py` (M03)  
 **Expected result:** Do not raise an inspection and do not offer a quick-fix when the nearest MRO parents do not define `__init__`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS
 
 ```incorrect code after applying
 ```
@@ -207,8 +233,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## M04 — Explicit parent call already present
 **Snippet:** `snippets/multiple_inheritance_cases.py` (M04)  
 **Expected result:** Stay silent (no inspection, no quick-fix) when the child already calls a parent initializer explicitly.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
@@ -218,17 +245,20 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## D01 — Parent is @dataclass
 **Snippet:** `snippets/dataclasses_cases.py` (D01)  
 **Expected result:** Construct a keyworded call to the dataclass parent initializer, e.g., `super().__init__(id=id, name=name)`; keep any docstring first.  
-**Actual:**  
-**Status:**  
+**Actual:**  The inspector does not indicate that a fix needs to be called.
 
-```incorrect code after applying
+**Status:**  ❌ FAIL
+
+```
+no code changing
 ```
 
 ## D02 — Child is @dataclass (auto-generated __init__)
 **Snippet:** `snippets/dataclasses_cases.py` (D02)  
 **Expected result:** Do not show the inspection when the child relies on the dataclass-generated `__init__`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -236,19 +266,11 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## D03 — Dataclass parent kw_only=True
 **Snippet:** `snippets/dataclasses_cases.py` (D03)  
 **Expected result:** Use a keyworded call to respect keyword-only dataclass fields, e.g., `super().__init__(id=id, name=name)`; no positional passing.  
-**Actual:**  
-**Status:**  
+**Actual:**  The inspector does not indicate that a fix needs to be called.
+**Status:**  ❌ FAIL
 
-```incorrect code after applying
 ```
-
-## D04 — Dataclass parent with slots/frozen
-**Snippet:** `snippets/dataclasses_cases.py` (D04)  
-**Expected result:** Insert a keyworded call such as `super().__init__(id=id)` and keep formatting intact even with `slots`/`frozen`.  
-**Actual:**  
-**Status:**  
-
-```incorrect code after applying
+no code changing
 ```
 
 ---
@@ -256,8 +278,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## T01 — Docstring first
 **Snippet:** `snippets/typing_fmt_cases.py` (T01)  
 **Expected result:** Place the inserted call immediately after the docstring without reflowing it.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -265,35 +288,30 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## T02 — Long signature, wrapping
 **Snippet:** `snippets/typing_fmt_cases.py` (T02)  
 **Expected result:** Preserve multi-line wrapping and trailing comma in the signature and body; the inserted call may be multi-line but must not reformat the function.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
 
-## T03 — Mutable default
+
+## T03 — Multiline docstring (Google/Numpy)
 **Snippet:** `snippets/typing_fmt_cases.py` (T03)  
-**Expected result:** Insert `super().__init__(items)` and keep the indentation and layout unchanged.  
-**Actual:**  
-**Status:**  
-
-```incorrect code after applying
-```
-
-## T04 — Multiline docstring (Google/Numpy)
-**Snippet:** `snippets/typing_fmt_cases.py` (T04)  
 **Expected result:** Insert the call after the multiline docstring block and do not modify docstring formatting.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
 
-## T05 — Comments around insertion point
-**Snippet:** `snippets/typing_fmt_cases.py` (T05)  
+## T04 — Comments around insertion point
+**Snippet:** `snippets/typing_fmt_cases.py` (T04)  
 **Expected result:** Keep surrounding comments intact and insert the call between them without altering spacing.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -303,17 +321,28 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## E01 — Wrong decorators
 **Snippet:** `snippets/edge_cases.py` (E01)  
 **Expected result:** Do not offer a quick-fix when `__init__` is decorated incorrectly (e.g., `@staticmethod`).  
-**Actual:**  
-**Status:**  
+**Actual:**  inspector propose to add super().__init__(), it could be done
 
-```incorrect code after applying
+**Status:**  ❌ FAILED
+
+```
+class DecorChild(DecorParent):
+    """
+    @staticmethod on __init__ is semantically invalid; inspection should not
+    propose 'Add superclass call'. E01.
+    """
+    @staticmethod
+    def __init__(self):
+        super().__init__() <--- added
+        ...
 ```
 
 ## E02 — super in try/except
 **Snippet:** `snippets/edge_cases.py` (E02)  
 **Expected result:** Do not raise an inspection when a `super()` call already exists inside a `try/except` block.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
@@ -321,8 +350,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## E03 — Metaclass / __new__
 **Snippet:** `snippets/edge_cases.py` (E03)  
 **Expected result:** Do not raise an inspection or offer a quick-fix when the parent defines only `__new__` and no `__init__`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -330,8 +360,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## E04 — Parent is object
 **Snippet:** `snippets/edge_cases.py` (E04)  
 **Expected result:** Do not raise an inspection or offer a quick-fix when the only parent is `object`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
@@ -339,8 +370,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## E05 — Parent defines __init__ = object.__init__
 **Snippet:** `snippets/edge_cases.py` (E05)  
 **Expected result:** Do not raise an inspection or offer a quick-fix when the parent explicitly aliases `__init__` to `object.__init__`.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
 
 ```incorrect code after applying
 ```
@@ -348,8 +380,9 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ## E06 — Conditional super() already present
 **Snippet:** `snippets/edge_cases.py` (E06)  
 **Expected result:** Do not raise an inspection when a `super()` call is already present under a condition.  
-**Actual:**  
-**Status:**  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
 
 ```incorrect code after applying
 ```
@@ -361,47 +394,51 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 
 **Actual:**  The inspection does not work, the user does not see an error in the code for no explicit reason.
 
-**Status:**  ❌ FAILED
+**Status:**  ❌ FAIL
 
-```incorrect code after applying
-```
 
-## P01 — 1k-case bulk edit scenario
+
+## P01 — 1k lines file bulk edit scenario
 **Snippet:** `snippets/performance/large_1k.py` (P01)
 
-**Expected result:** The inspection and quick-fix remain responsive when scanning or applying changes across ~1k affected classes in a single file in 3 seconds.
+**Expected result:** The inspection and quick-fix remain responsive when scanning or applying bulk changes across ~1k affected lines (76 places) in a file in 3 seconds.
 
 I don't have any statistics or numbers to reference, so I'm using data from my own user experience for this smoke performance test. True performance testing is out of scope.
 
-**Actual:**
+**Actual:** ~2.7 seconds in 10 runs
 
-**Status:**
+**Status:** PASS  
 
-```incorrect code after applying
-```
 
-## P02 — 5k-case bulk edit scenario
+
+## P02 — 5k lines file bulk edit scenario
 **Snippet:** `snippets/performance/large_5k.py` (P02)
 
-**Expected result:** Even with ~5k affected classes, PyCharm should keep the UI responsive and finish applying the quick-fix in 15 seconds.
+**Expected result:** Even with ~5k affected lines (383 places), PyCharm should keep the UI responsive and finish applying the bulk quick-fix in 15 seconds.
 
 It should be completed within a reasonable time frame. I don't have any statistics or numbers to reference, so I'm using data from my own user experience for this smoke performance test. True performance testing is out of scope.
 
-**Actual:**
+**Actual:** ~32.1 seconds in 10 runs. The execution speed increases non-linearly; with large numbers of modified classes, the speed is low.
 
-**Status:**
+**Status:** ❌ FAIL
 
-```incorrect code after applying
-```
 
-## P03 — Simple quick-fix scenario
+## P03 — Small file single quick-fix scenario
 **Snippet:** `snippets/basic_cases.py` (B01)  
 
-**Expected result:** Quick-fix is done in 150 ms.
+**Expected result:** Quick-fix is done in <300 ms.
 
-**Actual:**
+**Actual:**  exactly as expected
 
-**Status:**
+**Status:**  PASS 
 
-```incorrect code after applying
-```
+
+
+## P04 — 1k lines file single quick-fix scenario
+**Snippet:** `snippets/performance/large_1k.py` (P01)
+
+**Expected result:** Quick-fix is done in <300 ms.
+
+**Actual:**  exactly as expected
+
+**Status:**  PASS 
