@@ -21,8 +21,8 @@ Non-Bundled Plugins:
   Docker (252.27397.129)
 
 - Python: 3.13.x  
-- Scope: We test this *feature pair* (inspection + quick-fix).  
-  Out of scope → global inspection settings, profiles, automation.
+- Scope: We test this *feature pair* (inspection + quick-fix).
+- Out of scope → global inspection settings, profiles, automation, deep performance testing, localization testing.
 
 **Status legend:** PASS / FAIL
 
@@ -354,3 +354,54 @@ For **FAIL** I include a block with unexpected code after applying this quick-fi
 ```incorrect code after applying
 ```
 
+## R01 — Read-only file should support inspection
+**Snippet:** `snippets/readonly_case.py` (R01)
+
+**Expected result:** The inspection should work, IDE should display an explicit warning that the quick fix cannot be applied because the file is not available for editing.
+
+**Actual:**  The inspection does not work, the user does not see an error in the code for no explicit reason.
+
+**Status:**  ❌ FAILED
+
+```incorrect code after applying
+```
+
+## P01 — 1k-case bulk edit scenario
+**Snippet:** `snippets/performance/large_1k.py` (P01)
+
+**Expected result:** The inspection and quick-fix remain responsive when scanning or applying changes across ~1k affected classes in a single file in 3 seconds.
+
+I don't have any statistics or numbers to reference, so I'm using data from my own user experience for this smoke performance test. True performance testing is out of scope.
+
+**Actual:**
+
+**Status:**
+
+```incorrect code after applying
+```
+
+## P02 — 5k-case bulk edit scenario
+**Snippet:** `snippets/performance/large_5k.py` (P02)
+
+**Expected result:** Even with ~5k affected classes, PyCharm should keep the UI responsive and finish applying the quick-fix in 15 seconds.
+
+It should be completed within a reasonable time frame. I don't have any statistics or numbers to reference, so I'm using data from my own user experience for this smoke performance test. True performance testing is out of scope.
+
+**Actual:**
+
+**Status:**
+
+```incorrect code after applying
+```
+
+## P03 — Simple quick-fix scenario
+**Snippet:** `snippets/basic_cases.py` (B01)  
+
+**Expected result:** Quick-fix is done in 150 ms.
+
+**Actual:**
+
+**Status:**
+
+```incorrect code after applying
+```
