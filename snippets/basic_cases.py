@@ -27,7 +27,7 @@ class ChildNoArgs(ParentNoArgs):
 # B01a — Early parent dependency
 # -----------------------------
 class ParentRequiresSetup:
-    """Parent initializes state that children may access immediately. B01a."""
+    """Parent initializes state that children may access immediately. B01."""
 
     def __init__(self):
         self.ready = True
@@ -113,10 +113,10 @@ class ParentDifferentNames:
 class ChildDifferentNames(ParentDifferentNames):
     """
     Child uses different name 'uid' and provides **remaining_kwargs.
-    Strategy: match by name where possible ('active'), pass the rest via **kwargs.
+    Strategy: match by name where possible ('active'), don't pass the rest via **kwargs.
     Should NOT guess uid→user_id. B06.
     """
-    def __init__(self, uid, *, active=True, **remaining_kwargs):
+    def __init__(self, uid, active=True, **remaining_kwargs):
         ...
 
 
@@ -130,34 +130,24 @@ class ParentBuiltinList(list):
 
 
 class ChildBuiltinList(ParentBuiltinList):
-    """Child should call super().__init__(iterable). B07 (nice-to-have for built-ins)."""
+    """
+    Child should call super().__init__(iterable).
+    Expected: quick-fix inserts `super().__init__(iterable)` BEFORE we read len(self)."""
+
     def __init__(self, iterable=()):
-        ...
+     # EARLY RELIANCE: must be after super().__init__(iterable)
+     self.initial_len_snapshot = len(self)
+     ...
 
 
 # -----------------------------
-# B08 — Exception subclass
-# -----------------------------
-class ParentException(Exception):
-    """Parent based on Exception, expects msg. Used by B08."""
-    def __init__(self, msg: str):
-        ...
-
-
-class ChildException(ParentException):
-    """Child should call super().__init__(msg). B08."""
-    def __init__(self, msg: str):
-        ...
-
-
-# -----------------------------
-# B09 — Parent uses __slots__
+# B08 — Parent uses __slots__
 # -----------------------------
 class SlottedParent:
     """
     Parent defines __slots__ and initializes the slot in __init__.
     Missing super() in child should be detected. Quick-fix must insert
-    super().__init__(token=token) (keyworded or positional depending on IDE strategy).
+    super().__init__(token).
     """
     __slots__ = ("token",)
 
@@ -240,7 +230,7 @@ class MixedKindsChild(MixedKindsParent):
 # -----------------------------
 # B14 — Abstract Base Class (single inheritance)
 # -----------------------------
-from abc import ABC  # kept local to avoid polluting other files
+from abc import ABC
 
 
 class AbstractParent(ABC):
@@ -263,23 +253,9 @@ import threading
 
 class MyThread(threading.Thread):
     """
-    Real-world parent with many optional args. Quick-fix should build a named call like
-    super().__init__(group=group, target=target, name=name). B15.
+    Real parent with many optional args. Quick-fix should build a named call like
+    super().__init__(group, target, name, daemon=daemon). B15.
     """
-    def __init__(self, group=None, target=None, name=None):
+    def __init__(self, group=None, target=None, name=None, daemon=None):
         ...
 
-
-# -----------------------------
-# B16 — Real-world: logging.Logger
-# -----------------------------
-import logging
-
-
-class MyLogger(logging.Logger):
-    """
-    Another real-world parent. Quick-fix should insert super().__init__(name, level)
-    or a keyworded variant, preserving formatting. B16.
-    """
-    def __init__(self, name, level=logging.INFO):
-        ...

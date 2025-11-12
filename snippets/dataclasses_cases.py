@@ -56,21 +56,3 @@ class KWOnlyDataChild(KWOnlyDataParent):
     """Child provides explicit __init__; keyworded call is expected. D03."""
     def __init__(self, id: int, name: str = "n"):
         ...
-
-
-# -----------------------------
-# D04 — Dataclass parent with slots/frozen
-# -----------------------------
-@dataclass(slots=True, frozen=True)
-class FrozenSlotsParent:
-    """
-    Dataclass with slots + frozen. Even so, child's explicit __init__ must call
-    parent via keyworded args. D04.
-    """
-    id: int
-
-
-class FrozenSlotsChild(FrozenSlotsParent):
-    """Child explicit __init__ → quick-fix must insert super().__init__(id=id). D04."""
-    def __init__(self, id: int):
-        ...

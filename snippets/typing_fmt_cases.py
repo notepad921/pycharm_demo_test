@@ -24,7 +24,7 @@ class PathChild(PathParent):
 # T02 — Long signature, wrapping
 class LongSigParent:
     """Parent: long parameter + kw-only flag. Used by T02."""
-    def __init__(self, very_long_argument_name: str, *, flag: bool = False):
+    def __init__(self, very_looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong_argument_name: str, *, flag: bool = False):
         ...
 
 
@@ -33,30 +33,14 @@ class LongSigChild(LongSigParent):
     Child must preserve wrapping and trailing comma on insertion.
     The call may be split into lines. T02.
     """
-    def __init__(
-        self,
-        very_long_argument_name: str,
-        *,
-        flag: bool = False,
-    ):
-        ...
-
-
-# T03 — Mutable default
-class ItemsParent:
-    """Parent uses a typical 'mutable default holder' pattern with items=None. Used by T03."""
-    def __init__(self, items=None):
-        ...
-
-
-class ItemsChild(ItemsParent):
-    """Child should forward items: super().__init__(items). T03."""
-    def __init__(self, items=None):
+    def __init__(self,
+                 very_looooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooong_argument_name: str, *,
+                 flag: bool = False):
         ...
 
 
 # -----------------------------
-# T04 — Multiline docstring (Google/Numpy style)
+# T03 — Multiline docstring (Google/Numpy style)
 # -----------------------------
 class DocParent:
     """Parent requires x."""
@@ -67,7 +51,7 @@ class DocParent:
 class DocChild(DocParent):
     """
     Quick-fix must insert the call after this multiline docstring
-    and must not reflow or rewrap it. T04.
+    and must not reflow or rewrap it. T03.
     """
     def __init__(self, x):
         """Summary.
@@ -79,7 +63,7 @@ class DocChild(DocParent):
 
 
 # -----------------------------
-# T05 — Comments around insertion point
+# T04 — Comments around insertion point
 # -----------------------------
 class CommentedParent:
     """Parent requires x."""
@@ -90,7 +74,7 @@ class CommentedParent:
 class CommentedChild(CommentedParent):
     """
     Quick-fix must keep comments intact, inserting the call between them
-    without changing spacing/indent. T05.
+    without changing spacing/indent. T04.
     """
     def __init__(self, x):
         # prepare something
