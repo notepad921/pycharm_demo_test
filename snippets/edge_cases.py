@@ -39,7 +39,7 @@ class TryChild(TryParent):
             pass
 
 
-# E03 — Metaclass/__new__ magic
+# E03 — __new__ magic
 class NewParent:
     """
     Parent implements __new__ only (no __init__). In this case the quick-fix should
@@ -100,3 +100,41 @@ class CondChild(CondParent):
     def __init__(self, setup=True):
         if setup:
             super().__init__(setup=setup)
+
+
+# -----------------------------
+# E07 — Metaclass with custom __init__
+# -----------------------------
+class BlahBlahMeta(type):
+    """
+    Metaclass that customizes class creation/initialization at the *class* level.
+
+    Important: this __init__ belongs to the metaclass, not to the instance.
+    There is still no meaningful parent instance __init__ to call from the child.
+    Used by E07.
+    """
+    def __init__(cls, name, bases, namespace):
+        # Some class-level "magic"
+        cls.meta_initialized = True
+        super().__init__(name, bases, namespace)
+
+
+class MetaParent(metaclass=BlahBlahMeta):
+    """
+    Parent uses a metaclass but does NOT define its own instance-level __init__.
+    From the point of view of 'Add superclass call', there is no parent __init__
+    that the child is required to call.
+    """
+    # no __init__ here on purpose
+    ...
+
+
+class MetaChild(MetaParent):
+    """
+    Child defines an __init__, but the parent only has metaclass-level logic.
+    Expected: the inspection should NOT suggest adding super().__init__(...)
+    because there is no meaningful instance initializer in the parent.
+    """
+    def __init__(self, token: str = "x"):
+        self.token = token
+        ...
