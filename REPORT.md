@@ -347,7 +347,7 @@ class DecorChild(DecorParent):
 ```incorrect code after applying
 ```
 
-## E03 — Metaclass / __new__
+## E03 — __new__
 **Snippet:** `snippets/edge_cases.py` (E03)  
 **Expected result:** Do not raise an inspection or offer a quick-fix when the parent defines only `__new__` and no `__init__`.  
 **Actual:**  exactly as expected
@@ -379,6 +379,16 @@ class DecorChild(DecorParent):
 
 ## E06 — Conditional super() already present
 **Snippet:** `snippets/edge_cases.py` (E06)  
+**Expected result:** Do not raise an inspection when a `super()` call is already present under a condition.  
+**Actual:**  exactly as expected
+
+**Status:**  PASS  
+
+```incorrect code after applying
+```
+
+## E07 — Metaclass with custom __init__
+**Snippet:** `snippets/edge_cases.py` (E07)  
 **Expected result:** Do not raise an inspection when a `super()` call is already present under a condition.  
 **Actual:**  exactly as expected
 
